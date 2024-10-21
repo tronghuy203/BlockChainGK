@@ -1,0 +1,95 @@
+/* Container for the product list */
+.user-product-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 0 auto;
+  padding: 20px;
+  min-height: 400px;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+  url("https://png.pngtree.com/thumb_back/fw800/background/20230610/pngtree-several-fresh-vegetables-and-fruits-are-laid-out-on-a-wooden-image_2899224.jpg");
+}
+.user-product-list h2 {
+  grid-column: span 5; 
+  text-align: center;
+  color: #ffffff;
+  padding-bottom: -2000px;
+}
+
+.user-product-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Add transform to transition */
+  margin-bottom: 50px;
+  height: 510px;
+}
+
+.user-product-item:hover {
+  transform: scale(1.05); /* Scale up the product item */
+  z-index: 10; /* Bring the hovered item to the front */
+}
+
+.user-image{
+  border-bottom: 1px solid rgb(91, 90, 90);
+}
+
+/* Product name and price */
+.user-product-item .product-name {
+  font-size: 25px;
+  font-weight: bold;
+  color: rgb(0, 0, 0);
+  margin: 5px 0;
+}
+
+.user-product-item .product-price {
+  font-size: 20px;
+  color: rgb(100, 100, 100);
+  margin-top: 20px;
+  margin-bottom: 15px;
+
+}
+.user-product-item .product-status {
+  font-size: 20px;
+  color: rgb(100, 100, 100);
+  margin: 5px 0;
+
+}
+.user-product-item .product-address {
+  font-size: 20px;
+  color: rgb(100, 100, 100);
+  margin: 5px 0;
+
+}
+.user-product-item .product-content {
+  font-size: 20px;
+  color: rgb(100, 100, 100);
+  margin: 5px 0;
+
+}
+
+
+
+
+/* Overlay to darken the background */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.user-product-item {
+  position: relative;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+}

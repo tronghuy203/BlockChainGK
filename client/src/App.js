@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import axios from "axios";
 import getWeb3 from "./getWeb3";
+import { BrowserRouter as Router } from "react-router-dom";
 import Main from "./components/Main/Main";
 import ItemManagerContracts from "./contracts/ItemManager.json";
 import ItemContract from "./contracts/Item.json";
@@ -13,6 +14,7 @@ class App extends Component {
     currentView: "home",
     cost: "",
     itemName: "",
+    content: "",
     account: "",
   };
 
@@ -63,7 +65,6 @@ class App extends Component {
       console.log("Không tìm thấy tài khoản nào");
     } else {
       this.setState({ account: accounts[0] });
-      // Reload the entire page
       window.location.reload();
     }
   };
@@ -76,7 +77,11 @@ class App extends Component {
           .items(evt.returnValues._itemIndex)
           .call();
         if (Number(itemObject._state) === 1) {
-          alert("Vật phẩm " + itemObject._identifier + " đã được thanh toán, giao ngay");
+          alert(
+            "Vật phẩm " +
+              itemObject._identifier +
+              " đã được thanh toán, giao ngay"
+          );
         }
       } catch (error) {
         console.error("Error processing payment event:", error);
@@ -87,7 +92,6 @@ class App extends Component {
   loadItems = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/items");
-      // Check the structure of the response
       console.log("Loaded items:", response.data);
       this.setState({ items: response.data });
     } catch (error) {
@@ -102,13 +106,15 @@ class App extends Component {
     this.setState({ [name]: value });
   };
 
-  handleSubmit = async () => {
-    const { cost, itemName } = this.state;
-
+  handleSubmit = async (formValues) => {
+    const { cost, itemName, content, image } = formValues;
+    const formData = new FormData();
+    formData.append("image", image);
     try {
       const result = await this.itemManager.methods
-        .createItem(itemName, cost)
+        .createItem(itemName, cost, content)
         .send({ from: this.accounts[0] });
+
       alert(`Gửi ${cost} Wei đén ${result.logs[0].address}`);
       const itemAddress =
         result.events.SupplyChainStep.returnValues._itemAddress;
@@ -119,17 +125,23 @@ class App extends Component {
       const itemData = {
         name: itemName,
         cost: cost,
+        content: content,
         fromAddress: this.accounts[0],
         toAddress: result.logs[0].address,
         itemAddress: itemAddress,
         hash: result.transactionHash,
         status: "Create",
         contractIndex: itemIndex,
+        image: formData.get("image"),
       };
-
       const response = await axios.post(
         "http://localhost:5000/api/items/add",
-        itemData
+        itemData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
       console.log("Item added to backend:", response.data);
       this.loadItems();
@@ -141,42 +153,35 @@ class App extends Component {
   handleBuyItem = async (itemId, itemPrice) => {
     try {
       const selectedItem = this.state.items.find((item) => item._id === itemId);
-
       if (!selectedItem || isNaN(itemPrice) || itemPrice <= 0) {
         throw new Error("Vị trí vật phẩm hoặc giá vật phẩm không hợp lệ");
       }
-
       if (
         this.accounts[0].toLowerCase() ===
         selectedItem.fromAddress.toLowerCase()
       ) {
         throw new Error("Chủ sở hữu không thể mua sản phẩm của chính mình");
       }
-
-      const itemOnChain = await this.itemManager.methods.items(selectedItem.contractIndex).call();
-
+      const itemOnChain = await this.itemManager.methods
+        .items(selectedItem.contractIndex)
+        .call();
       if (Number(itemOnChain._state) === 1) {
         alert("Sản phẩm này đã được mua");
         return;
       }
-
       const valueInWei = this.web3.utils.toWei(itemPrice.toString(), "wei");
       const itemIndexAsNumber = selectedItem.contractIndex;
-
       if (isNaN(itemIndexAsNumber)) {
         throw new Error("Invalid item contract index");
       }
-
       await this.itemManager.methods
         .triggerPayment(itemIndexAsNumber)
         .send({ from: this.accounts[0], value: valueInWei });
-
       const itemData = {
         index: selectedItem._id,
         status: "Purchased",
         buyer: this.accounts[0],
       };
-
       await axios.post("http://localhost:5000/api/items/update", itemData);
       this.loadItems();
     } catch (error) {
@@ -192,35 +197,30 @@ class App extends Component {
       if (!selectedItem) {
         throw new Error("Invalid item");
       }
-
-      const itemOnChain = await this.itemManager.methods.items(selectedItem.contractIndex).call();
+      const itemOnChain = await this.itemManager.methods
+        .items(selectedItem.contractIndex)
+        .call();
 
       if (Number(itemOnChain._state) !== 1) {
         throw new Error("Sản phẩm chưa sẵn sàng để giao hàng");
       }
-
       if (
         this.accounts[0].toLowerCase() !==
         selectedItem.fromAddress.toLowerCase()
       ) {
         throw new Error("Chỉ có chủ sở hữu mới có thể giao hàng");
       }
-
       const itemIndexAsNumber = selectedItem.contractIndex;
-
       if (isNaN(itemIndexAsNumber)) {
         throw new Error("Invalid item contract index");
       }
-
       await this.itemManager.methods
         .triggerDelivery(itemIndexAsNumber)
         .send({ from: this.accounts[0] });
-
       const itemData = {
         index: selectedItem._id,
         status: "Delivered",
       };
-
       await axios.post("http://localhost:5000/api/items/update", itemData);
       alert("Sản phẩm đã được giao thành công");
       this.loadItems();
@@ -233,30 +233,24 @@ class App extends Component {
   handleSubmitRating = async (itemId, rating) => {
     try {
       const selectedItem = this.state.items.find((item) => item._id === itemId);
-
       if (!selectedItem) {
         throw new Error("Mặt hàng không hợp lệ");
       }
-
       const itemIndexAsNumber = selectedItem.contractIndex;
-
       if (isNaN(itemIndexAsNumber)) {
         throw new Error("Invalid item contract index");
       }
-
       await this.itemManager.methods
         .submitRating(itemIndexAsNumber, rating)
         .send({ from: this.state.account });
-
       const itemData = {
         index: selectedItem._id,
         rating: rating,
         isRated: true,
       };
-
       await axios.post("http://localhost:5000/api/items/update", itemData);
       alert("Đã gửi đánh giá thành công!");
-      this.loadItems(); // Refresh the list of items
+      this.loadItems(); 
     } catch (error) {
       console.error("Error submitting rating:", error.message);
       alert(`Error submitting rating: ${error.message}`);
@@ -273,19 +267,21 @@ class App extends Component {
     }
 
     return (
-      <div className="App">
-        <Main
-          currentView={this.state.currentView}
-          items={this.state.items}
-          onSubmit={this.handleSubmit}
-          onInputChange={this.handleInputChange}
-          onViewChange={this.changeView}
-          handleBuyItem={this.handleBuyItem}
-          handleDeliverItem={this.handleDeliverItem}
-          handleSubmitRating={this.handleSubmitRating}
-          account={this.state.account}
-        />
-      </div>
+      <Router>
+        <div className="App">
+          <Main
+            currentView={this.state.currentView}
+            items={this.state.items}
+            onSubmit={this.handleSubmit}
+            onInputChange={this.handleInputChange}
+            onViewChange={this.changeView}
+            handleBuyItem={this.handleBuyItem}
+            handleDeliverItem={this.handleDeliverItem}
+            handleSubmitRating={this.handleSubmitRating}
+            account={this.state.account}
+          />
+        </div>
+      </Router>
     );
   }
 }

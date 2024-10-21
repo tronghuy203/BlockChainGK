@@ -6,8 +6,10 @@ const itemRoutes = require('./routes/items'); // Ensure the path is correct
 const app = express();
 
 app.use(express.json());
+app.use(express.static('public'));
 app.use(cors());
 app.use('/api/items', itemRoutes);
+
 
 mongoose.connect("mongodb://localhost:27017/ShopFruit", {
   useNewUrlParser: true,

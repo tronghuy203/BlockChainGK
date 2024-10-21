@@ -11,6 +11,7 @@ contract ItemManager is Ownable {
         Item _item;
         string _identifier;
         uint _itemPrice;
+        string _content;
         SupplyChainState _state;
         address _buyer; 
         uint8 _rating; 
@@ -23,11 +24,12 @@ contract ItemManager is Ownable {
     event SupplyChainStep(uint _itemIndex, uint _step, address _itemAddress);
     event ItemRated(uint _itemIndex, uint8 _rating); 
 
-    function createItem(string memory _identifier, uint _itemPrice) public {
+    function createItem(string memory _identifier, uint _itemPrice, string memory _content) public {
         Item item = new Item(this, _itemPrice, itemIndex);
         items[itemIndex]._item = item;
         items[itemIndex]._identifier = _identifier;
         items[itemIndex]._itemPrice = _itemPrice;
+        items[itemIndex]._content = _content;
         items[itemIndex]._state = SupplyChainState.Created;
         items[itemIndex]._isRated = false; 
         emit SupplyChainStep(itemIndex, uint(items[itemIndex]._state), address(item));
@@ -60,7 +62,6 @@ contract ItemManager is Ownable {
         items[_itemIndex]._isRated = true; 
         emit ItemRated(_itemIndex, _rating); 
     }
-
 
     function getRating(uint _itemIndex) public view returns (uint8) {
         require(items[_itemIndex]._isRated, "Item has not been rated yet!");

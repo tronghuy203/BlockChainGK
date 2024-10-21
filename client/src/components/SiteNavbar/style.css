@@ -1,15 +1,17 @@
-/* site-navbar.css */
+/* sitenavbar */
 
 #header {
   background-color: #000000;
   border-bottom: 0.0001px solid #414141;
 }
-.navbar-brand{
+
+.navbar-brand {
   color: #ffffff;
   margin-left: 20px;
   font-weight: bold;
 }
-.navbar-brand:hover{
+
+.navbar-brand:hover {
   color: #ffffff;
 }
 
@@ -23,21 +25,20 @@
 
 .navbar-nav .nav-link {
   margin-left: auto; 
-  color: #ffffff;
+  color: #ffffff; 
+  transition: color 0.3s ease;
 }
 
-.navbar-nav .nav-link.active, .navbar-nav .nav-link.show {
+.navbar-nav .nav-link.active {
   color: #04ff00;
-
 }
 
 
 .account-display {
+  display: flex; 
   align-items: center;
   margin-right: 10px;
   margin-left: auto; 
-
-
 }
 
 .account-display img {
@@ -49,13 +50,13 @@
   color: #ffffff; 
 }
 
-/* footer */
+/* Footer */
 
 .footer {
   padding: 20px 0;
   background-color: #000000;
   display: flex;
-  justify-content: center; /* Căn giữa nội dung footer */
+  justify-content: center; 
   position: relative;
 }
 
@@ -97,4 +98,10 @@
 .mt-2 {
   margin-top: 1rem;
   display: block;
+}
+
+.account-dropdown {
+  position: absolute; /* Đảm bảo dropdown không bị ảnh hưởng bởi layout của navbar */
+  right: 0; /* Đưa dropdown sang bên phải */
+  z-index: 1000; /* Đặt z-index để dropdown nằm trên các phần tử khác */
 }

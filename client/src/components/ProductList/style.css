@@ -16,10 +16,6 @@
   padding-bottom: -2000px;
 }
 
-
-
-/* Style for each product item */
-
 .product-item {
   display: flex;
   flex-direction: column;
@@ -29,26 +25,31 @@
   background: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   padding: 10px;
-  transition: box-shadow 0.3s ease;
+  transition: box-shadow 0.3s ease, transform 0.3s ease; /* Add transform to transition */
   margin-bottom: 50px;
-  height: 430px;
-  
+  height: 450px;
 }
 
+.product-item:hover {
+  transform: scale(1.05); /* Scale up the product item */
+  z-index: 10; /* Bring the hovered item to the front */
+}
 
+.image{
+  border-bottom: 1px solid rgb(91, 90, 90);
+}
 
 /* Product name and price */
 .product-item .product-name {
   font-size: 25px;
   font-weight: bold;
   color: rgb(0, 0, 0);
-  margin: 5px 0;
 }
 
 .product-item .product-price {
   font-size: 20px;
   color: rgb(100, 100, 100);
-  margin-top: 20px;
+  margin-top: 10px;
 
 }
 .product-item .product-status {
@@ -58,6 +59,12 @@
 
 }
 .product-item .product-address {
+  font-size: 20px;
+  color: rgb(100, 100, 100);
+  margin: 5px 0;
+
+}
+.product-item .product-content {
   font-size: 20px;
   color: rgb(100, 100, 100);
   margin: 5px 0;
@@ -73,16 +80,18 @@
   border-radius: 7px;
   padding: 10px 20px;
   cursor: pointer;
-  margin: 5px;
   transition: background-color 0.3s ease;
+  display: block;
+  margin: auto;
+  margin-top: 10px;
 }
 
 .product-item button:hover {
   background-color: rgb(2, 183, 20);
 }
 .sold-out-badge img {
-  width: 100px; /* Adjust the width as needed */
-  height: auto /* Maintain the aspect ratio */
+  width: 70px; 
+  height: auto 
 }
 
 /* Container for the star rating input */
@@ -132,4 +141,36 @@
 .empty-star {
   color: #ccc;
   font-size: 30px;
+}
+/* Description box */
+.description-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  padding: 20px;
+  border: 2px solid #ddd;
+  z-index: 1001;
+  width: 400px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Overlay to darken the background */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.product-item {
+  position: relative;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
 }
